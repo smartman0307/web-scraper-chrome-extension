@@ -107,9 +107,6 @@ SitemapController.prototype = {
 				'#sitemap-selector-list-nav-button': {
 					click: this.showSitemapSelectorList
 				},
-				'.feature input[name=selectAttribute]': {
-					change: this.toggleExtractAttribute
-				},
 				'#sitemap-selector-graph-nav-button': {
 					click: this.showSitemapSelectorGraph
 				},
@@ -158,6 +155,9 @@ SitemapController.prototype = {
 				},
 				'#edit-selector button[action=cancel-selector-editing]': {
 					click: this.cancelSelectorEditing
+				},
+				'#edit-selector #selectorId': {
+					keyup: this.updateSelectorParentListOnIdChange
 				},
 				'#selector-tree button[action=add-selector]': {
 					click: this.addSelector
@@ -683,6 +683,11 @@ SitemapController.prototype = {
 		var selector = $(button).closest("tr").data('selector');
 		this._editSelector(selector);
 	},
+	updateSelectorParentListOnIdChange: function() {
+
+		var selector = this.getCurrentlyEditedSelector();
+		$(".currently-edited").val(selector.id).text(selector.id);
+	},
 	_editSelector: function (selector) {
 
 		var sitemap = this.state.currentSitemap;
@@ -739,6 +744,12 @@ SitemapController.prototype = {
 			]
 		});
 		$("#viewport").html($editSelectorForm);
+		// mark initially opened selector as currently edited
+		$("#edit-selector #parentSelectors option").each(function(i, element) {
+			if($(element).val() === selector.id) {
+				$(element).addClass("currently-edited");
+			}
+		});
 
 		// handle selects seperately
 		$editSelectorForm.find("[name=type]").val(selector.type);
@@ -756,11 +767,21 @@ SitemapController.prototype = {
 		$("#edit-selector .feature").hide();
 		features.forEach(function (feature) {
 			$("#edit-selector .feature-" + feature).show();
-		})
-	},
-	toggleExtractAttribute: function() {
-		$("#edit-selector input[name=extractAttribute]").val("");
-		$("#edit-selector .feature-extractAttribute").toggle();
+		});
+
+		// add this selector to possible parent selector
+		var selector = this.getCurrentlyEditedSelector();
+		if(selector.canHaveChildSelectors()) {
+			if($("#edit-selector #parentSelectors .currently-edited").length === 0) {
+				var $option = $('<option class="currently-edited"></option>');
+				$option.text(selector.id).val(selector.id);
+				$("#edit-selector #parentSelectors").append($option);
+			}
+		}
+		// remove if type doesn't allow to have child selectors
+		else {
+			$("#edit-selector #parentSelectors .currently-edited").remove();
+		}
 	},
 	saveSelector: function (button) {
 
@@ -943,9 +964,16 @@ SitemapController.prototype = {
 			requestInterval: requestInterval,
 			pageLoadDelay: pageLoadDelay
 		};
+
+		// show sitemap scraping panel
+		this.getFormValidator().destroy();
+		$(".scraping-in-progress").removeClass("hide");
+		$("#submit-scrape-sitemap").closest(".form-group").hide();
+		$("#scrape-sitemap-config input").prop('disabled', true);
+
 		chrome.runtime.sendMessage(request, function (response) {
-			// sitemap scraped
-		});
+			this.browseSitemapData();
+		}.bind(this));
 		return false;
 	},
 	sitemapListBrowseSitemapData: function (button) {
