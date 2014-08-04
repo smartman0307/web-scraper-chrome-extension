@@ -3,9 +3,6 @@ describe("Click Element Selector", function () {
 	var $el;
 
 	beforeEach(function () {
-
-		this.addMatchers(selectorMatchers);
-
 		$el = jQuery("#tests").html("");
 		if($el.length === 0) {
 			$el = $("<div id='tests' style='display:none'></div>").appendTo("body");
@@ -30,7 +27,7 @@ describe("Click Element Selector", function () {
 
 		runs(function () {
 			dataDeferred.done(function(data) {
-				expect($(data).text()).toEqual("a");
+				expect(data).toEqual([$el.find("div")[0]]);
 			});
 		});
 	});
@@ -53,7 +50,7 @@ describe("Click Element Selector", function () {
 
 		runs(function () {
 			dataDeferred.done(function(data) {
-				expect($(data).text()).toEqual("ab");
+				expect(data).toEqual($el.find("div").get());
 			});
 		});
 	});
@@ -86,11 +83,11 @@ describe("Click Element Selector", function () {
 				data = resultData;
 			});
 			expect(data.length).toEqual(1);
-			expect($(data).text()).toEqual("test");
+			expect(data).toEqual($el.find("div").get());
 		});
 	});
 
-	it("should skip clicking if click element is removed from dom", function() {
+	it("should skip clicking if click element is removed from dom", function(){
 
 		$el.append($("<a>a</a><a class='remove'>b</a>"));
 		$el.find("a").click(function() {
@@ -120,7 +117,7 @@ describe("Click Element Selector", function () {
 				data = resultData;
 			});
 			expect(data.length).toEqual(1);
-			expect($(data).text()).toEqual("test");
+			expect(data).toEqual($el.find("div").get());
 		});
 	});
 
@@ -155,7 +152,7 @@ describe("Click Element Selector", function () {
 				data = resultData;
 			});
 			expect(data.length).toEqual(1);
-			expect($(data).text()).toEqual("test");
+			expect(data).toEqual($el.find("div").get());
 		});
 	});
 
@@ -169,43 +166,5 @@ describe("Click Element Selector", function () {
 
 		var columns = selector.getDataColumns();
 		expect(columns).toEqual([]);
-	});
-
-	it("should return multiple elements if only contents is changed", function() {
-
-		var expectedElements = [];
-		$el.append($("<a>a</a><div>a</div>"));
-		$el.find("a").click(function() {
-			setTimeout(function() {
-				$el.find("div").text("b");
-			}, 50);
-		});
-
-		var selector = new Selector({
-			id: 'div',
-			type: 'SelectorElementClick',
-			multiple: true,
-			clickElementSelector: "a",
-			selector: "div",
-			delay: 100
-		});
-
-		var dataDeferred = selector.getData($el);
-
-		waitsFor(function() {
-			return dataDeferred.state() === 'resolved';
-		}, "wait for data extraction", 5000);
-
-		runs(function () {
-
-			var data;
-			dataDeferred.done(function(resultData) {
-				data = resultData;
-			});
-
-			expect(data.length).toEqual(2);
-			expect($(data[0]).text()).toEqual("b");
-			expect($(data[1]).text()).toEqual("a");
-		});
 	});
 });

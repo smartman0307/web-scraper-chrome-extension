@@ -25,25 +25,6 @@ var SelectorElementClick = {
 		return clickElements;
 	},
 
-	getDataElements: function (parentElement) {
-
-		// special case when you need to select parent selector.
-		if(this.selector === this.parentSelectionSelector) {
-			return $(parentElement).clone(true);
-		}
-
-		var elements = $(this.selector, parentElement).clone(true);
-		if (this.multiple) {
-			return elements;
-		}
-		else if (elements.length > 0) {
-			return [elements[0]];
-		}
-		else {
-			return [];
-		}
-	},
-
 	_getData: function (parentElement) {
 
 		var delay = parseInt(this.delay) || 0;
@@ -102,13 +83,17 @@ var SelectorElementClick = {
 			// elements that we got after clicking
 			results.forEach(function(elements) {
 				$(elements).each(function(i, element){
-					dataElements.push(element);
+					if(dataElements.indexOf(element) === -1) {
+						dataElements.push(element);
+					}
 				});
 			});
 
 			// add StartElements
 			$(startElements).each(function(i, element){
-				dataElements.push(element);
+				if(dataElements.indexOf(element) === -1) {
+					dataElements.push(element);
+				}
 			});
 
 			deferredResponse.resolve(dataElements);
