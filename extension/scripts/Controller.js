@@ -107,9 +107,6 @@ SitemapController.prototype = {
 				'#sitemap-selector-list-nav-button': {
 					click: this.showSitemapSelectorList
 				},
-				'.feature input[name=selectAttribute]': {
-					change: this.toggleExtractAttribute
-				},
 				'#sitemap-selector-graph-nav-button': {
 					click: this.showSitemapSelectorGraph
 				},
@@ -785,10 +782,6 @@ SitemapController.prototype = {
 		else {
 			$("#edit-selector #parentSelectors .currently-edited").remove();
 		}
-	},
-	toggleExtractAttribute: function() {
-		$("#edit-selector input[name=extractAttribute]").val("");
-		$("#edit-selector .feature-extractAttribute").toggle();
 	},
 	saveSelector: function (button) {
 
