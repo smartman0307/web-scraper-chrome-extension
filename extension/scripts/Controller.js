@@ -107,9 +107,6 @@ SitemapController.prototype = {
 				'#sitemap-selector-list-nav-button': {
 					click: this.showSitemapSelectorList
 				},
-				'.feature input[name=selectAttribute]': {
-					change: this.toggleExtractAttribute
-				},
 				'#sitemap-selector-graph-nav-button': {
 					click: this.showSitemapSelectorGraph
 				},
@@ -676,6 +673,15 @@ SitemapController.prototype = {
 					validators: {
 						notEmpty: {
 							message: 'You must choose at least one parent selector'
+						},
+						callback: {
+							message: 'Cannot handle recursive element selectors',
+							callback: function(value, validator, $field) {
+
+								var sitemap = this.getCurrentlyEditedSelectorSitemap();
+								return !sitemap.selectors.hasRecursiveElementSelectors();
+
+							}.bind(this)
 						}
 					}
 				}
@@ -771,12 +777,6 @@ SitemapController.prototype = {
 		features.forEach(function (feature) {
 			$("#edit-selector .feature-" + feature).show();
 		});
-		if(!$("#edit-selector input[name=extractAttribute]").val()) {
-			$("#edit-selector .feature-extractAttribute").hide();
-		}
-		else {
-			$("#edit-selector input[name=selectAttribute]").prop('checked', true);
-		}
 
 		// add this selector to possible parent selector
 		var selector = this.getCurrentlyEditedSelector();
@@ -791,10 +791,6 @@ SitemapController.prototype = {
 		else {
 			$("#edit-selector #parentSelectors .currently-edited").remove();
 		}
-	},
-	toggleExtractAttribute: function() {
-		$("#edit-selector input[name=extractAttribute]").val("");
-		$("#edit-selector .feature-extractAttribute").toggle();
 	},
 	saveSelector: function (button) {
 
