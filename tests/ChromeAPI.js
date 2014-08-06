@@ -13,7 +13,8 @@ ChromeAPI.prototype = {
 		this.tabs = [];
 		this.prevDownloaId = 0;
 		this.downloadsOnChangedListeners = [];
-		this.tabsOnUpdatedLinsteners = [];
+		this.tabUpdateCb = function () {
+		}
 	},
 	createWindow: function (data, callback) {
 		var tabId = this.currentTab;
@@ -28,16 +29,8 @@ ChromeAPI.prototype = {
 			tabs: this.tabs
 		});
 	},
-	bindOnTabUpdated: function (listener) {
-
-		this.tabsOnUpdatedLinsteners.push(listener);
-	},
-	tabsOnUpdatedRemoveListener: function(listener) {
-
-		var index = this.tabsOnUpdatedLinsteners.indexOf(listener);
-		if(index !== -1) {
-			this.tabsOnUpdatedLinsteners[index] = function(){};
-		}
+	bindOnTabUpdated: function (callback) {
+		this.tabUpdateCb = callback;
 	},
 	tabUpdate: function (tabId, data) {
 		this.tabData[tabId] = data;
@@ -46,10 +39,8 @@ ChromeAPI.prototype = {
 		// Asynchronous execution is essential
 		setTimeout(function () {
 			// @TODO all features
-			this.tabsOnUpdatedLinsteners.forEach(function(listener) {
-				listener(tabId, {
-					status: 'complete'
-				});
+			this.tabUpdateCb(tabId, {
+				status: 'complete'
 			});
 		}.bind(this), 1);
 	},
@@ -122,8 +113,7 @@ ChromeAPI.prototype = {
 			},
 			tabs: {
 				onUpdated: {
-					addListener: this.bindOnTabUpdated.bind(this),
-					removeListener: this.tabsOnUpdatedRemoveListener.bind(this)
+					addListener: this.bindOnTabUpdated.bind(this)
 				},
 				update: this.tabUpdate.bind(this),
 				get: this.tabGet.bind(this),
