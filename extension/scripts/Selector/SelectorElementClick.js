@@ -20,7 +20,8 @@ var SelectorElementClick = {
 	},
 
 	getClickElements: function(parentElement) {
-		var clickElements = ElementQuery(this.clickElementSelector, parentElement);
+		// @TODO do we need here _parent_ ?
+		var clickElements = $(parentElement).find(this.clickElementSelector);
 		return clickElements;
 	},
 

@@ -50,9 +50,6 @@ describe("ContentSelector", function () {
 			allowedElements: "a"
 		});
 
-		var currentCSSSelector = contentSelector.getCurrentCSSSelector();
-		expect(currentCSSSelector).toEqual("");
-
 		var deferredCSSSelector = contentSelector.getCSSSelector();
 
 		// finish selection
@@ -80,8 +77,7 @@ describe("ContentSelector", function () {
 
 		var contentSelector = new ContentSelector({
 			parentCSSSelector: "div#content-script-css-selector-test",
-			allowedElements: "a",
-			alert: function(){}
+			allowedElements: "a"
 		});
 
 		var deferredCSSSelector = contentSelector.getCSSSelector();
@@ -112,8 +108,7 @@ describe("ContentSelector", function () {
 	it("should reject selector preview request when parent element not found", function() {
 
 		var contentSelector = new ContentSelector({
-			parentCSSSelector: "div#content-script-css-selector-test",
-			alert: function(){}
+			parentCSSSelector: "div#content-script-css-selector-test"
 		});
 
 		var deferredSelectorPreview = contentSelector.previewSelector("a");
