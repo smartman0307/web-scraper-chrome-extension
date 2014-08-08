@@ -29,12 +29,16 @@ var SelectorGroup = {
 		$(elements).each(function (k, element) {
 			var data = {};
 
-			data[this.id] = $(element).text();
-
-			if(this.extractAttribute) {
-				data[this.id+'-'+this.extractAttribute] = $(element).attr(this.extractAttribute);
+			if (element.src) {
+				data[this.id + '-src'] = element.src;
 			}
+			else {
+				data[this.id] = $(element).text();
 
+				if (element.href) {
+					data[this.id + '-href'] = element.href;
+				}
+			}
 			records.push(data);
 		}.bind(this));
 
@@ -50,6 +54,6 @@ var SelectorGroup = {
 	},
 
 	getFeatures: function () {
-		return ['delay','extractAttribute']
+		return ['delay']
 	}
 };
